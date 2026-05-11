@@ -1,26 +1,43 @@
-# Genesis X-1 — Network Sandbox (e2e_full)
+# Genesis X-1 — Network Sandbox
 
-Run a complete 5-party supply-chain trade on the Genesis X-1 live network.
+Run a complete 5-party supply-chain trade on the Genesis X-1 live network. No source code. No install (except Go if using that path).
 
-Simulates: actor registration → organization onboarding → delegation → order ledger → 15 signed events → cross-party Ed25519 verification.
+Simulates actor registration → organization onboarding → delegation → order ledger → 15 signed events → cross-party Ed25519 verification.
 
-## Requirements
+---
 
-Go 1.21+
+## Download and Run (no Go needed)
 
-## Run (no clone needed)
+Download the binary for your platform from the latest release:
 
-```bash
-go run github.com/IAEX-Network/iaex-genesis-x-1-sandbox@latest
+**[→ Download Latest Release](https://github.com/IAEX-Network/iaex-genesis-x-1-v1-sandbox/releases/tag/Release-Sanbox)**
+
+| Platform | File |
+|---|---|
+| Windows | `e2e_full_windows_amd64.exe` |
+| Linux | `e2e_full_linux_amd64` |
+| macOS (Apple Silicon) | `e2e_full_macos_arm64` |
+
+### Windows
+```
+e2e_full_windows_amd64.exe
 ```
 
-## Run from clone
+### Linux / macOS
+```bash
+chmod +x e2e_full_linux_amd64
+./e2e_full_linux_amd64
+```
+
+---
+
+## Run with Go (no clone needed)
 
 ```bash
-git clone https://github.com/IAEX-Network/iaex-genesis-x-1-sandbox
-cd iaex-genesis-x-1-sandbox
-go run .
+go run github.com/IAEX-Network/iaex-genesis-x-1-v1-sandbox@latest
 ```
+
+---
 
 ## Flags
 
@@ -29,22 +46,30 @@ go run .
 | `-base-url` | `https://api.iaexnetwork.com` | API base URL |
 | `-region` | `in` | Actor registration region (`in` or `eu`) |
 
+---
+
 ## Expected Output
 
 ```
+PHASE 10A: SIGLOG SELF-VERIFICATION (client-side Ed25519 — zero server trust)
 SigLog: 74 PASS  0 FAIL  74 total
+
+CROSS-PARTY VERIFICATION SUMMARY
 Ed25519 verified : 116
 Failed           : 0
 Proof model: client-side Ed25519 — no server trust required
 ```
 
-Zero exit = all phases passed including cross-party verification.
+Zero exit = all phases passed including cross-party Ed25519 verification.
+
+---
 
 ## What It Tests
 
-- 5 organizations, ~30 actors, all Ed25519 keys enrolled at registration
+- 5 organizations, ~30 actors — all Ed25519 keys enrolled at registration
 - Every business event actor-signed (`X-Actor-Sig` header)
 - Phase 10A: self-verify all 74 signatures locally (zero server trust)
 - Phase 10B: each party independently fetches and verifies via own API key
+- Causal hash chains: `QC → PRODUCTION`, `DELIVERED → PICKUP`, `LOAN_DISBURSED → DELIVERED`
 
-Protocol: [developer.iaexnetwork.com](https://developer.iaexnetwork.com)
+Protocol documentation: [developer.iaexnetwork.com](https://developer.iaexnetwork.com)
