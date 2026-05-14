@@ -7,9 +7,22 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"golang.org/x/term"
 )
 
+// interactive returns true when stdin is a real terminal (not piped / subprocess).
+func interactive() bool {
+	return term.IsTerminal(int(os.Stdin.Fd()))
+}
+
+// waitForEnter pauses only in interactive (terminal) mode.
+// When run as a subprocess (SSE server) or piped, it prints the label and continues.
 func waitForEnter(label string) {
+	if !interactive() {
+		fmt.Printf("\n  ── %s\n", label)
+		return
+	}
 	fmt.Printf("\n  ┌─ %s\n  └─ Press Enter to continue... ", label)
 	bufio.NewReader(os.Stdin).ReadString('\n')
 }
@@ -19,6 +32,15 @@ func main() {
 	region := flag.String("region", "in", "Region for developer register: in | eu")
 	flag.Parse()
 	*baseURL = strings.TrimRight(*baseURL, "/")
+
+	// Keep console window open on Windows when run by double-click.
+	// In non-interactive mode (piped / subprocess) this is skipped.
+	if interactive() {
+		defer func() {
+			fmt.Print("\n  Press Enter to exit... ")
+			bufio.NewReader(os.Stdin).ReadString('\n')
+		}()
+	}
 
 	fmt.Println("╔══════════════════════════════════════════════════════════════╗")
 	fmt.Println("║  IAEX Full Production Flow: 5 Independent Parties            ║")
